@@ -5,6 +5,9 @@ Prototipo local que lee una solicitud de grant (PDF, DOCX o TXT), usa un LLM par
 y deja que una persona apruebe, edite o rechace cada valor. Del registro aprobado salen el JSON canónico,
 un payload compatible con Salesforce (que **no** se envía) y el audit trail.
 
+**Demo en vivo:** <https://grant-tracker-gfw.streamlit.app> ·
+**Metodología y arquitectura:** <https://jmtoral.github.io/grant-tracker-gfw/>
+
 ## 1. Qué es y qué no es
 
 **Es:** una herramienta interna de revisión asistida: `Upload → AI → Confidence → Evidence → Human Review →
@@ -56,6 +59,16 @@ siempre con el mismo schema Pydantic, con un reintento.
 
 Tests: `C:\Users\User\anaconda3\envs\granter\python.exe -m pytest -q`. Cada proveedor tiene un test offline
 que usa su SDK real con la red simulada, y un test en vivo que solo corre si su key está en `.env`.
+
+### Despliegue en Streamlit Community Cloud
+
+El demo público corre ahí, sin API key: al no haber ninguna en el entorno, `config.provider_name()` cae al
+proveedor Fake y los 3 samples ficticios funcionan igual. Para redesplegarlo:
+repo `jmtoral/grant-tracker-gfw`, branch `main`, main file `app.py`, y en *Advanced settings*
+**Python 3.12** (el código usa `StrEnum`, que necesita 3.11+). La base SQLite se crea sola en `data/` y es
+efímera: cada reinicio del contenedor la borra, que es lo que se quiere en un demo público. Para probar con un
+proveedor real, se pega la key en la barra lateral (vive solo en esa sesión, nunca se guarda) en vez de
+ponerla en los *secrets* de la app.
 
 ## 3. Cómo correr la demo
 
