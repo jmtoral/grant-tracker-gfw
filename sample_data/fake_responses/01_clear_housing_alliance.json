@@ -1,0 +1,127 @@
+{
+  "organization_name": {
+    "value": "Community Housing Alliance",
+    "evidence": [
+      {
+        "text": "Applicant organization: Community Housing Alliance",
+        "page": 1,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "Community Housing Alliance respectfully requests $250,000 over two years",
+        "page": 1,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.98
+  },
+  "grant_type": {
+    "value": "Project Support",
+    "evidence": [
+      {
+        "text": "This is a request for project support for our Fair Rent Campaign.",
+        "page": 1,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.95
+  },
+  "primary_strategy": {
+    "value": "Policy Advocacy",
+    "evidence": [
+      {
+        "text": "Our primary strategy is policy advocacy",
+        "page": 2,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "a two-year statewide policy advocacy effort to pass tenant protection legislation",
+        "page": 2,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.95
+  },
+  "issues": {
+    "value": [
+      "Housing",
+      "Economic Justice"
+    ],
+    "evidence": [
+      {
+        "text": "The campaign addresses housing stability and economic justice for renters",
+        "page": 2,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.92
+  },
+  "geography": {
+    "value": [
+      "Statewide"
+    ],
+    "evidence": [
+      {
+        "text": "The campaign is statewide, with organizers in eight counties",
+        "page": 3,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "a two-year statewide policy advocacy effort",
+        "page": 2,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.95
+  },
+  "target_population": {
+    "value": [
+      "Low-Income Families"
+    ],
+    "evidence": [
+      {
+        "text": "The campaign focuses on low-income families who rent their homes",
+        "page": 2,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "works to keep low-income families stably housed",
+        "page": 1,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.93
+  },
+  "amount_requested": {
+    "value": 250000,
+    "evidence": [
+      {
+        "text": "Community Housing Alliance respectfully requests $250,000 over two years from the Riverbend Foundation.",
+        "page": 1,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "Total amount requested from the Riverbend Foundation: $250,000 (USD).",
+        "page": 3,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.97
+  },
+  "project_summary": {
+    "value": "Community Housing Alliance requests $250,000 over two years for the Fair Rent Campaign, a statewide policy advocacy effort to pass tenant protection legislation, including limits on no-cause evictions and a statewide rental assistance fund, benefiting low-income renter families.",
+    "evidence": [
+      {
+        "text": "The Fair Rent Campaign is a two-year statewide policy advocacy effort to pass tenant protection legislation, including limits on no-cause evictions and a statewide rental assistance fund.",
+        "page": 2,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "The campaign focuses on low-income families who rent their homes",
+        "page": 2,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.9
+  }
+}

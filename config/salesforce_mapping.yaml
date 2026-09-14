@@ -1,0 +1,11 @@
+# App field -> Salesforce object/field. Optional per field:
+#   max_length: N            texts longer than N are truncated (warning in _warnings)
+#   value_map: {"Taxonomy value": "Salesforce_API_Value"}   unmapped values pass through (warning)
+organization_name: {object: Account, field: Name, max_length: 255}
+grant_type:        {object: Grant_Request__c, field: Grant_Type__c, type: picklist}
+primary_strategy:  {object: Grant_Request__c, field: Primary_Strategy__c, type: picklist}
+issues:            {object: Grant_Request__c, field: Issue_Areas__c, type: multipicklist}
+geography:         {object: Grant_Request__c, field: Geography__c, type: multipicklist}
+target_population: {object: Grant_Request__c, field: Target_Population__c, type: multipicklist}
+amount_requested:  {object: Grant_Request__c, field: Amount_Requested__c, type: currency}
+project_summary:   {object: Grant_Request__c, field: Project_Summary__c, max_length: 32768}

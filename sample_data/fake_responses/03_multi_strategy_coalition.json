@@ -1,0 +1,138 @@
+{
+  "organization_name": {
+    "value": "Great Lakes Fair Futures Coalition",
+    "evidence": [
+      {
+        "text": "Great Lakes Fair Futures Coalition is a network of 34 member organizations",
+        "page": 1,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.97
+  },
+  "grant_type": {
+    "value": "General Operating Support",
+    "evidence": [
+      {
+        "text": "We request $400,000 in general operating support over two years.",
+        "page": 1,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "Application for General Operating Support",
+        "page": 1,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.95
+  },
+  "primary_strategy": {
+    "value": "Policy Advocacy",
+    "evidence": [
+      {
+        "text": "Our work rests on three equal pillars, and no single pillar comes first.",
+        "page": 2,
+        "evidence_type": "inferred"
+      },
+      {
+        "text": "Policy advocacy: we lobby state legislatures and city councils for fair housing, clean air and wage standards.",
+        "page": 2,
+        "evidence_type": "inferred"
+      },
+      {
+        "text": "Coalition building: we convene member organizations to agree on shared platforms across issues and across state lines.",
+        "page": 2,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.3
+  },
+  "issues": {
+    "value": [
+      "Housing",
+      "Environment & Climate",
+      "Economic Justice",
+      "Health",
+      "Civil Rights"
+    ],
+    "evidence": [
+      {
+        "text": "Affordable housing and tenant rights; lead pipe replacement and clean air near highways; fair wages for warehouse and care workers; access to health care for immigrant families; and voting access.",
+        "page": 2,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "founded in 2017 by tenant unions, immigrant rights groups, faith congregations and environmental justice organizations",
+        "page": 1,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.6
+  },
+  "geography": {
+    "value": [
+      "Regional (multi-state)"
+    ],
+    "evidence": [
+      {
+        "text": "a network of 34 member organizations in Michigan, Ohio and Wisconsin",
+        "page": 1,
+        "evidence_type": "inferred"
+      },
+      {
+        "text": "across issues and across state lines",
+        "page": 2,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.8
+  },
+  "target_population": {
+    "value": [
+      "Communities of Color",
+      "Immigrants & Refugees",
+      "Workers",
+      "Low-Income Families"
+    ],
+    "evidence": [
+      {
+        "text": "Residents of working-class neighborhoods in Detroit, Cleveland, Toledo and Milwaukee, most of them Black and Latino families, recent immigrants, and hourly workers.",
+        "page": 3,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.75
+  },
+  "amount_requested": {
+    "value": 400000,
+    "evidence": [
+      {
+        "text": "We request $400,000 in general operating support over two years.",
+        "page": 1,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.9
+  },
+  "project_summary": {
+    "value": "Great Lakes Fair Futures Coalition, a network of 34 member organizations in Michigan, Ohio and Wisconsin, requests $400,000 in general operating support over two years to sustain policy advocacy, community organizing and coalition building on housing, environmental, wage, health and voting issues.",
+    "evidence": [
+      {
+        "text": "Great Lakes Fair Futures Coalition is a network of 34 member organizations in Michigan, Ohio and Wisconsin.",
+        "page": 1,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "We request $400,000 in general operating support over two years.",
+        "page": 1,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "Our work rests on three equal pillars, and no single pillar comes first.",
+        "page": 2,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.8
+  }
+}

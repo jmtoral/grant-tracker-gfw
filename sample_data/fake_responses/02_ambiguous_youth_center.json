@@ -1,0 +1,133 @@
+{
+  "organization_name": {
+    "value": "Northside Youth Commons",
+    "evidence": [
+      {
+        "text": "Northside Youth Commons is a neighborhood center that has served young people ages 12 to 18 since 2014.",
+        "page": 1,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.95
+  },
+  "grant_type": {
+    "value": "Project Support",
+    "evidence": [
+      {
+        "text": "launch Pathways, an after-school digital skills program, while also strengthening our organizational capacity",
+        "page": 2,
+        "evidence_type": "inferred"
+      },
+      {
+        "text": "About two thirds of this grant would support Pathways program delivery",
+        "page": 4,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.5
+  },
+  "primary_strategy": {
+    "value": "Direct Service",
+    "evidence": [
+      {
+        "text": "Participants will receive mentoring, coding workshops and paid summer internships with local employers.",
+        "page": 4,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.6
+  },
+  "issues": {
+    "value": [
+      "Education",
+      "Workforce Development"
+    ],
+    "evidence": [
+      {
+        "text": "an after-school digital skills program",
+        "page": 2,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "paid summer internships with local employers",
+        "page": 4,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.7
+  },
+  "geography": {
+    "value": [
+      "Local"
+    ],
+    "evidence": [
+      {
+        "text": "Northside Youth Commons is a neighborhood center",
+        "page": 1,
+        "evidence_type": "inferred"
+      },
+      {
+        "text": "Most of our members attend Hawthorne Middle School and Eastfield High School",
+        "page": 1,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.6
+  },
+  "target_population": {
+    "value": [
+      "Children & Youth",
+      "Low-Income Families"
+    ],
+    "evidence": [
+      {
+        "text": "has served young people ages 12 to 18",
+        "page": 1,
+        "evidence_type": "inferred"
+      },
+      {
+        "text": "more than 80 percent of students qualify for free or reduced-price lunch",
+        "page": 1,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.55
+  },
+  "amount_requested": {
+    "value": 180000,
+    "evidence": [
+      {
+        "text": "We are requesting $180,000 from the Lakeshore Community Fund over two years.",
+        "page": 4,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "The total budget for this two-year effort is $1.2 million",
+        "page": 3,
+        "evidence_type": "inferred"
+      },
+      {
+        "text": "The Fund's grant of $180,000 would cover 15 percent of the total budget.",
+        "page": 3,
+        "evidence_type": "explicit"
+      }
+    ],
+    "self_confidence": 0.75
+  },
+  "project_summary": {
+    "value": "Northside Youth Commons requests $180,000 over two years to launch Pathways, an after-school digital skills program for young people ages 12 to 18, and to strengthen its finance, evaluation and fundraising systems. The total two-year budget is $1.2 million.",
+    "evidence": [
+      {
+        "text": "Over the next two years we want to launch Pathways, an after-school digital skills program, while also strengthening our organizational capacity.",
+        "page": 2,
+        "evidence_type": "explicit"
+      },
+      {
+        "text": "Our staff has doubled since 2022, but our finance, evaluation and fundraising systems have not kept pace.",
+        "page": 2,
+        "evidence_type": "inferred"
+      }
+    ],
+    "self_confidence": 0.7
+  }
+}

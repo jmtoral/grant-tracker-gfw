@@ -1,0 +1,44 @@
+ingestion:
+  max_upload_mb: 20
+  min_pdf_text_chars: 200          # below this a PDF is treated as scanned -> "OCR required"
+  docx_paragraphs_per_section: 40  # DOCX has no pages: split every N paragraphs or at each heading
+
+evidence:
+  fuzzy_ratio: 0.85                # difflib ratio needed to accept a non-exact quote
+
+confidence:
+  method: heuristic-v1
+  weights:
+    evidence_quality: 0.50
+    evidence_quantity: 0.15
+    value_text_coherence: 0.20
+    llm_self_report: 0.15
+  quote_scores:
+    explicit_verified: 1.0
+    inferred_verified: 0.6
+    unverified: 0.1
+  caps:
+    classified_without_verified_evidence: 0.60
+    other_value: 0.60
+  summary_overlap: 0.6             # project_summary: share of its words found in verified quotes to count as coherent
+  levels:                          # used only to prioritise review, never to auto-decide
+    high: 0.90
+    medium: 0.70
+  synonyms:                        # extra terms that count as "value appears in the quote"
+    Regional (multi-state): [multi-state, multistate, regional, state lines]
+    Statewide: [statewide, state-wide, across the state]
+    Local: [local, citywide, city-wide, county, neighborhood]
+    National: [national, nationwide]
+    Children & Youth: [youth, children, young people, teens, students]
+    Low-Income Families: [low-income, low income, free school lunch, free or reduced-price]
+    Immigrants & Refugees: [immigrant, refugee]
+    People Experiencing Homelessness: [homeless]
+    Communities of Color: [black, latino, latinx, people of color]
+    Environment & Climate: [climate, environment]
+    Workforce Development: [workforce, job training, digital skills, employment]
+    Capacity Building: [capacity]
+    Coalition Building: [coalition]
+    Community Organizing: [organizing, organize]
+    Policy Advocacy: [advocacy, advocate]
+    Food Security: [food]
+    Economic Justice: [economic justice, economic security]

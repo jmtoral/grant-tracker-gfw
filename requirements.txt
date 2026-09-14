@@ -1,0 +1,11 @@
+streamlit>=1.46
+pydantic>=2
+pyyaml
+sqlalchemy>=2
+pymupdf
+python-docx
+google-genai
+anthropic
+openai
+python-dotenv
+pytest
