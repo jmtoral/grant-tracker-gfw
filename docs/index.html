@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grant Intake Copilot — Metodología y arquitectura</title>
+<meta name="description" content="Cómo Grant Intake Copilot extrae, clasifica y valida solicitudes de grant con revisión humana obligatoria, antes de generar un payload de Salesforce.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#411342;
+    --purple-light:#6b2a6e;
+    --purple-tint:#f6eef7;
+    --ink:#1a1418;
+    --ink-soft:#57515a;
+    --line:#e7e1e8;
+    --paper:#ffffff;
+    --panel:#f4f4f4;
+    --amber-bg:#fdf6e3;
+    --amber-line:#e8d4a0;
+    --amber-ink:#6b5518;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --maxw: 1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+       line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased}
+  img{max-width:100%;display:block}
+  h1,h2,h3,h4{font-weight:700;line-height:1.25;color:var(--ink);letter-spacing:-0.01em}
+  h2{font-size:1.7rem;margin:0 0 .5rem}
+  h3{font-size:1.2rem;margin:1.75rem 0 .5rem}
+  p{margin:.6rem 0}
+  a{color:var(--purple)}
+  code{font-family:var(--mono);font-size:.86em;background:var(--panel);padding:.1em .4em;border-radius:4px}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--purple-light)}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);
+      border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:1.5rem;height:56px;max-width:var(--maxw)}
+  nav .brand{font-weight:800;color:var(--purple);white-space:nowrap}
+  nav .links{display:flex;gap:1.1rem;overflow-x:auto;flex:1}
+  nav .links a{color:var(--ink-soft);text-decoration:none;font-size:.88rem;font-weight:500;white-space:nowrap}
+  nav .links a:hover{color:var(--purple)}
+  nav .gh{margin-left:auto;flex:none}
+  nav .gh a{background:var(--purple);color:#fff;padding:.4rem .9rem;border-radius:6px;font-size:.85rem;font-weight:600;text-decoration:none}
+
+  /* hero */
+  header.hero{background:linear-gradient(180deg,var(--purple-tint), #fff 70%);border-bottom:1px solid var(--line)}
+  header.hero .wrap{padding:64px 24px 48px}
+  header.hero h1{font-size:2.6rem;margin:.4rem 0 .8rem}
+  header.hero .lede{font-size:1.15rem;color:var(--ink-soft);max-width:640px}
+  .badges{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.4rem}
+  .badge{font-size:.78rem;font-weight:600;padding:.3rem .7rem;border-radius:999px;background:#fff;
+         border:1px solid var(--line);color:var(--ink-soft)}
+  .badge b{color:var(--purple)}
+  .cta{display:flex;gap:.7rem;margin-top:1.6rem;flex-wrap:wrap}
+  .btn{display:inline-block;padding:.6rem 1.1rem;border-radius:7px;font-weight:600;font-size:.92rem;
+       text-decoration:none;border:1px solid var(--line)}
+  .btn.primary{background:var(--purple);color:#fff;border-color:var(--purple)}
+  .btn.ghost{color:var(--purple);background:#fff}
+
+  section{padding:52px 0;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:none}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+  @media (max-width:720px){.grid2{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:10px;padding:1.3rem 1.4rem;background:#fff}
+  .card.is{border-top:3px solid var(--purple)}
+  .card.isnot{border-top:3px solid var(--ink-soft)}
+  .card ul{margin:.3rem 0 0;padding-left:1.1rem}
+  .card li{margin:.35rem 0}
+
+  table{border-collapse:collapse;width:100%;font-size:.92rem;margin:.8rem 0}
+  caption{text-align:left;font-size:.82rem;color:var(--ink-soft);margin-bottom:.4rem}
+  th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--panel);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft)}
+  td code{white-space:nowrap}
+  .tbl-wrap{overflow-x:auto}
+
+  .mermaid{background:#fff;border:1px solid var(--line);border-radius:10px;padding:1.2rem;overflow-x:auto}
+
+  .pipeline{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:1.2rem 0}
+  .pipeline .step{background:var(--purple-tint);border:1px solid #e3cfe6;color:var(--purple);
+                   padding:.5rem .8rem;border-radius:8px;font-size:.85rem;font-weight:600}
+  .pipeline .arrow{color:var(--ink-soft)}
+
+  .formula{background:var(--ink);color:#f3eef4;border-radius:10px;padding:1.1rem 1.3rem;font-family:var(--mono);
+           font-size:.95rem;overflow-x:auto}
+  .weights{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin:1rem 0}
+  @media (max-width:720px){.weights{grid-template-columns:repeat(2,1fr)}}
+  .weight{border:1px solid var(--line);border-radius:8px;padding:.8rem;text-align:center}
+  .weight .pct{font-size:1.4rem;font-weight:800;color:var(--purple)}
+  .weight .lbl{font-size:.78rem;color:var(--ink-soft);margin-top:.2rem}
+
+  .note{background:var(--amber-bg);border:1px solid var(--amber-line);color:var(--amber-ink);
+        border-radius:8px;padding:.8rem 1rem;font-size:.9rem;margin:1rem 0}
+
+  .levels{display:flex;gap:.6rem;flex-wrap:wrap;margin:.8rem 0}
+  .level{border-radius:999px;padding:.3rem .8rem;font-size:.82rem;font-weight:700}
+  .level.high{background:#e6f4ea;color:#1e7b34}
+  .level.medium{background:#eaf1fb;color:#1a56a8}
+  .level.low{background:#fdece9;color:#b23a1f}
+
+  .shots{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.2rem}
+  figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  figure img{width:100%}
+  figcaption{padding:.7rem 1rem;font-size:.85rem;color:var(--ink-soft);border-top:1px solid var(--line)}
+
+  .checklist{list-style:none;margin:1rem 0;padding:0}
+  .checklist li{display:flex;gap:.7rem;padding:.6rem 0;border-bottom:1px solid var(--line)}
+  .checklist li:last-child{border-bottom:none}
+  .checklist .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--purple-tint);color:var(--purple);
+                font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:.1rem}
+
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem}
+  .chip{font-family:var(--mono);font-size:.82rem;background:var(--panel);border:1px solid var(--line);
+        padding:.35rem .7rem;border-radius:6px}
+
+  footer{padding:40px 0 60px;color:var(--ink-soft);font-size:.88rem}
+  footer a{color:var(--purple)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="brand">Grant Intake Copilot</span>
+    <div class="links">
+      <a href="#arquitectura">Arquitectura</a>
+      <a href="#metodologia">Metodología</a>
+      <a href="#confianza">Confidence</a>
+      <a href="#datos">Datos</a>
+      <a href="#demo">Demo</a>
+      <a href="#salesforce">Salesforce</a>
+    </div>
+    <span class="gh"><a href="https://github.com/jmtoral/grant-tracker-gfw" target="_blank" rel="noopener">Ver en GitHub</a></span>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">MVP · prototipo funcional</span>
+    <h1>Un copiloto de IA para la recepción de solicitudes de grant</h1>
+    <p class="lede">Extrae texto de PDF/DOCX/TXT, clasifica 8 campos contra taxonomías cerradas, muestra
+      evidencia verificable y confidence por campo, exige revisión humana, y produce un objeto canónico y un
+      payload de Salesforce — sin conectarse nunca a Salesforce.</p>
+    <div class="badges">
+      <span class="badge">🧠 <b>Structured outputs</b>, no JSON libre</span>
+      <span class="badge">🔍 <b>Evidencia verificada</b> contra el texto real</span>
+      <span class="badge">🙋 <b>Revisión humana</b> obligatoria en Medium/Low</span>
+      <span class="badge">🧩 <b>Desacoplado</b> de Salesforce</span>
+    </div>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/jmtoral/grant-tracker-gfw" target="_blank" rel="noopener">Código fuente</a>
+      <a class="btn ghost" href="https://github.com/jmtoral/grant-tracker-gfw#readme" target="_blank" rel="noopener">README completo</a>
+      <a class="btn ghost" href="#demo">Ver capturas</a>
+    </div>
+  </div>
+</header>
+
+<section id="alcance">
+  <div class="wrap">
+    <span class="eyebrow">Alcance</span>
+    <h2>Qué es y qué no es</h2>
+    <p>El objetivo no es reemplazar Salesforce ni integrarse en producción todavía. Es demostrar, de punta a
+      punta, que se puede tomar una solicitud real, extraer información con evidencia trazable, y producir un
+      registro listo para enviarse — con una persona validando cada decisión relevante.</p>
+    <div class="grid2">
+      <div class="card is">
+        <h3 style="margin-top:0">✅ Es</h3>
+        <ul>
+          <li>Un pipeline de extracción + clasificación con <em>structured outputs</em> validados contra Pydantic.</li>
+          <li>Un heurístico de confidence explícito y reemplazable, no una probabilidad calibrada.</li>
+          <li>Una capa de revisión humana que bloquea el envío de campos Medium/Low sin decisión explícita.</li>
+          <li>Un <code>SalesforceAdapter</code> que genera el payload y lo muestra — sin llamarlo.</li>
+          <li>Taxonomías, thresholds y mapping 100% configurables en YAML.</li>
+        </ul>
+      </div>
+      <div class="card isnot">
+        <h3 style="margin-top:0">🚫 No es (todavía)</h3>
+        <ul>
+          <li>Integración real con Salesforce (OAuth, Composite API, MuleSoft, Apex).</li>
+          <li>OCR para PDFs escaneados sin texto (deja "OCR required" y se detiene).</li>
+          <li>Fine-tuning, embeddings, vector DB o RAG.</li>
+          <li>Multi-tenant, SSO, o despliegue enterprise.</li>
+          <li>Un sustituto de criterio humano: el confidence nunca decide nada por sí solo.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="arquitectura">
+  <div class="wrap">
+    <span class="eyebrow">Arquitectura</span>
+    <h2>Desacoplado de Salesforce por diseño</h2>
+    <p>La IA, la clasificación y la validación humana no saben que Salesforce existe. Solo el
+      <code>SalesforceAdapter</code>, guiado por <code>salesforce_mapping.yaml</code>, conoce ese formato — y en
+      esta fase solo genera el payload, nunca lo envía.</p>
+    <pre class="mermaid">
+flowchart LR
+    U[Upload PDF/DOCX/TXT<br/>o sample] --> I[ingestion.py<br/>validación + texto por página]
+    I --> P[pipeline.py<br/>schema dinámico + 1 llamada LLM]
+    P --> L{{LLMProvider}}
+    L --> G[Gemini · Claude ·<br/>OpenAI · DeepSeek]
+    L --> F[FakeLLMProvider]
+    P --> E[Verificación de evidencia<br/>página real, verified]
+    E --> C[confidence.py<br/>heuristic-v1]
+    C --> R[review.py<br/>Human Review en Streamlit]
+    R --> A[ApprovedGrantApplication<br/>JSON canónico]
+    A --> S[SalesforceAdapter<br/>salesforce_mapping.yaml]
+    S --> PL[Salesforce payload]
+    PL -.-> SF[Future Salesforce API]
+    R --> DB[(SQLite / PostgreSQL<br/>audit trail)]
+    A --> DB
+    style S stroke-dasharray: 5 5
+    style SF stroke-dasharray: 5 5
+    </pre>
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Archivo</th><th>Responsabilidad</th></tr></thead>
+      <tbody>
+        <tr><td><code>app.py</code></td><td>UI Streamlit (Review, Audit trail, Pilot metrics). Solo renderiza y llama a <code>src/</code>.</td></tr>
+        <tr><td><code>src/config.py</code></td><td>Carga los YAML y <code>.env</code>; calcula <code>prompt_version</code> y <code>taxonomy_version</code>.</td></tr>
+        <tr><td><code>src/models.py</code></td><td>Enums y modelos Pydantic: predicción IA vs. objeto aprobado por humano.</td></tr>
+        <tr><td><code>src/ingestion.py</code></td><td>Validación del upload y extracción de texto por página o sección.</td></tr>
+        <tr><td><code>src/llm.py</code></td><td>Protocolo <code>LLMProvider</code>: Gemini, Claude, OpenAI, DeepSeek y un proveedor Fake determinista.</td></tr>
+        <tr><td><code>src/pipeline.py</code></td><td>Schema dinámico, prompt, llamada, verificación de citas y armado del resultado.</td></tr>
+        <tr><td><code>src/confidence.py</code></td><td>Scorer heurístico puro y reemplazable por uno calibrado.</td></tr>
+        <tr><td><code>src/review.py</code></td><td>Decisiones, reglas de bloqueo, finalización y generación del payload.</td></tr>
+        <tr><td><code>src/salesforce_adapter.py</code></td><td>Único módulo del proyecto que conoce el formato de Salesforce.</td></tr>
+        <tr><td><code>src/db.py</code></td><td>Tablas SQLAlchemy y consultas de audit trail y métricas.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section id="metodologia">
+  <div class="wrap">
+    <span class="eyebrow">Metodología</span>
+    <h2>8 campos, extracción o clasificación cerrada</h2>
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Campo</th><th>Tipo</th><th>Cardinalidad</th><th>Taxonomía</th></tr></thead>
+      <tbody>
+        <tr><td><code>organization_name</code></td><td>Extracción</td><td>1</td><td>—</td></tr>
+        <tr><td><code>amount_requested</code></td><td>Extracción (monto normalizado)</td><td>1</td><td>—</td></tr>
+        <tr><td><code>project_summary</code></td><td>Síntesis (≤ 600 caracteres)</td><td>1</td><td>—</td></tr>
+        <tr><td><code>grant_type</code></td><td>Clasificación</td><td>1</td><td><code>grant_types.yaml</code></td></tr>
+        <tr><td><code>primary_strategy</code></td><td>Clasificación</td><td>1</td><td><code>strategies.yaml</code></td></tr>
+        <tr><td><code>issues</code></td><td>Clasificación multi-label</td><td>0..n</td><td><code>issues.yaml</code></td></tr>
+        <tr><td><code>geography</code></td><td>Clasificación multi-label</td><td>0..n</td><td><code>geographies.yaml</code></td></tr>
+        <tr><td><code>target_population</code></td><td>Clasificación multi-label</td><td>0..n</td><td><code>populations.yaml</code></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>Las taxonomías incluyen categorías de vivienda, justicia económica, salud, inmigración, ambiente,
+      <strong>violencia de género, derechos LGBTQ+ y derechos reproductivos</strong>, además de las poblaciones
+      correspondientes — todas configurables en YAML, sin tocar código.</p>
+
+    <h3>Una sola llamada, schema dinámico</h3>
+    <p>Los 8 campos se resuelven en <strong>una sola llamada estructurada</strong> por documento. El schema de
+      salida se construye en tiempo de ejecución con <code>Literal[...]</code> a partir de los YAML vigentes, así
+      que el LLM solo puede elegir valores de la taxonomía — nunca texto libre.</p>
+    <div class="pipeline">
+      <span class="step">1 · Ingestión + validación</span><span class="arrow">→</span>
+      <span class="step">2 · Schema dinámico (taxonomías → Literal)</span><span class="arrow">→</span>
+      <span class="step">3 · 1 llamada LLM estructurada</span><span class="arrow">→</span>
+      <span class="step">4 · Verificación de evidencia</span><span class="arrow">→</span>
+      <span class="step">5 · Confidence heurístico</span><span class="arrow">→</span>
+      <span class="step">6 · Revisión humana</span>
+    </div>
+
+    <h3>Evidencia: verificada por código, no por el modelo</h3>
+    <p>Cada cita se normaliza (minúsculas, espacios, comillas) y se busca <strong>literal</strong> en el texto
+      real; si no aparece exacta, se prueba con coincidencia difusa (<code>difflib</code>, ratio ≥ 0.85). La
+      página que se guarda es la <strong>encontrada por el código</strong>, nunca la que dice el modelo. Una cita
+      inventada queda marcada <code>unverified</code> y penaliza el confidence — el demo incluye un caso real de
+      esto (ver capturas más abajo).</p>
+    <p>Además, cada evidencia se etiqueta <code>explicit</code> (el concepto aparece literal) o
+      <code>inferred</code> (se dedujo), visible para quien revisa.</p>
+  </div>
+</section>
+
+<section id="confianza">
+  <div class="wrap">
+    <span class="eyebrow">Confidence</span>
+    <h2>Heurístico explícito, no una probabilidad calibrada</h2>
+    <div class="note">El confidence de un LLM no es una probabilidad calibrada. La UI siempre muestra
+      "(heuristic)" y el método queda versionado como <code>heuristic-v1</code> en cada corrida.</div>
+    <div class="formula">confidence = 0.50·calidad_evidencia + 0.15·cantidad_evidencia + 0.20·coherencia + 0.15·self_confidence</div>
+    <div class="weights">
+      <div class="weight"><div class="pct">50%</div><div class="lbl">Calidad de evidencia<br>(explícita verificada = 1.0, inferida = 0.6, sin verificar = 0.1)</div></div>
+      <div class="weight"><div class="pct">15%</div><div class="lbl">Cantidad de evidencia<br>min(citas verificadas, 2) / 2</div></div>
+      <div class="weight"><div class="pct">20%</div><div class="lbl">Coherencia valor↔texto<br>¿el valor aparece en la cita?</div></div>
+      <div class="weight"><div class="pct">15%</div><div class="lbl">Self-confidence del LLM<br>señal débil, nunca dominante</div></div>
+    </div>
+    <p><strong>Topes duros:</strong> un campo clasificado sin evidencia verificada no puede superar 0.60; un valor
+      <code>Other</code> tampoco; un valor nulo o lista vacía cae a 0 y el campo pasa a <em>Needs review</em>.</p>
+    <h3>Niveles (solo priorizan revisión, nunca deciden solos)</h3>
+    <div class="levels">
+      <span class="level high">High ≥ 90%</span>
+      <span class="level medium">Medium ≥ 70%</span>
+      <span class="level low">Low &lt; 70%</span>
+    </div>
+    <h3>Human-in-the-loop</h3>
+    <ul class="checklist">
+      <li><span class="n">1</span><div>Toda predicción muestra valor, confidence, evidencia y un estado de revisión (pending / approved / edited / rejected / manual review).</div></li>
+      <li><span class="n">2</span><div>El botón "Approve all High-confidence fields" solo toca campos High — Medium y Low exigen una decisión individual.</div></li>
+      <li><span class="n">3</span><div>Las aprobaciones masivas quedan marcadas <code>bulk=True</code> en la auditoría, y las métricas se calculan con y sin ellas para no inflar la tasa de aceptación.</div></li>
+      <li><span class="n">4</span><div>"Finalize review" está deshabilitado mientras quede un campo <em>pending</em> o en <em>manual review</em>.</div></li>
+      <li><span class="n">5</span><div>Se guardan tanto la predicción original como el valor final validado — nunca se sobrescribe la predicción.</div></li>
+    </ul>
+  </div>
+</section>
+
+<section id="datos">
+  <div class="wrap">
+    <span class="eyebrow">Flujo de datos</span>
+    <h2>Qué se envía al LLM, qué se guarda</h2>
+    <p><strong>Al LLM</strong> (una sola llamada por documento, solo al proveedor elegido): el prompt con las
+      taxonomías vigentes insertadas, el texto extraído con marcadores <code>[[PAGE n]]</code>, y el schema de
+      respuesta dinámico. Nunca se envía el nombre del archivo ni metadatos; el archivo original nunca se
+      guarda.</p>
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Tabla</th><th>Contenido</th></tr></thead>
+      <tbody>
+        <tr><td><code>documents</code></td><td>id (sha256 de los bytes), nombre, tipo, nº de páginas</td></tr>
+        <tr><td><code>document_pages</code></td><td>texto por página o sección (el contenido en sí)</td></tr>
+        <tr><td><code>runs</code></td><td>proveedor, modelo, <code>prompt_version</code>, <code>taxonomy_version</code>, estado, revisor</td></tr>
+        <tr><td><code>model_outputs</code></td><td>salida cruda del modelo, tal cual</td></tr>
+        <tr><td><code>predictions</code></td><td>valor, confidence, nivel y evidencia por campo</td></tr>
+        <tr><td><code>review_decisions</code></td><td><strong>auditoría</strong>: una fila por decisión humana (approve/edit/reject), solo se agrega, nunca se sobrescribe</td></tr>
+        <tr><td><code>approved_records</code></td><td>JSON canónico aprobado y payload de Salesforce</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>Nada del contenido del documento ni de la salida del modelo se escribe en logs. Cada corrida registra
+      <code>model_name</code>, <code>model_version</code>, <code>prompt_version</code>, <code>taxonomy_version</code>
+      y <code>app_version</code> — la base para poder medir accuracy y calibrar el confidence más adelante.</p>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="wrap">
+    <span class="eyebrow">En acción</span>
+    <h2>Capturas del flujo completo</h2>
+    <p>Upload → extracción con evidencia resaltada → revisión de campos → aprobado → payload de Salesforce →
+      métricas del piloto. Corriendo en local con el proveedor Fake (sin llamadas a ningún LLM).</p>
+    <div class="shots">
+      <figure>
+        <img src="img/review.png" alt="Pantalla de revisión: documento con evidencia resaltada a la izquierda, campos con confidence y evidencia a la derecha" loading="lazy">
+        <figcaption>Revisión de campos: la evidencia se resalta en el documento original y cada campo muestra confidence + cita verificada.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/salesforce.png" alt="Payload de Salesforce generado, agrupado por objeto Account y Grant_Request__c" loading="lazy">
+        <figcaption>Payload de Salesforce generado tras finalizar la revisión — agrupado por objeto (<code>Account</code>, <code>Grant_Request__c</code>), sin ninguna llamada de red.</figcaption>
+      </figure>
+      <figure>
+        <img src="img/metrics.png" alt="Panel de métricas del piloto con la tasa de aceptación y desglose por campo" loading="lazy">
+        <figcaption>Métricas del piloto: % de campos aceptados sin modificación (con y sin aprobaciones masivas) y desglose por campo.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="salesforce">
+  <div class="wrap">
+    <span class="eyebrow">Salesforce readiness</span>
+    <h2>Listo para conectarse, sin estar conectado</h2>
+    <p><code>config/salesforce_mapping.yaml</code> define, por campo, el objeto, el campo de Salesforce y un
+      <code>value_map</code> opcional. <code>SalesforceAdapter.to_salesforce(...)</code> arma el payload
+      agrupado por objeto — sin importar ningún SDK de Salesforce ni abrir una conexión.</p>
+    <h3>Qué cambiaría para una integración real</h3>
+    <ol class="checklist">
+      <li><span class="n">1</span><div><strong>Autenticación:</strong> Connected App con OAuth 2.0 JWT Bearer (servidor a servidor), certificado en un vault.</div></li>
+      <li><span class="n">2</span><div><strong>Escritura transaccional:</strong> Composite API (<code>allOrNone: true</code>) o sObject Tree para crear <code>Account</code> + <code>Grant_Request__c</code> en una sola llamada.</div></li>
+      <li><span class="n">3</span><div><strong>No duplicar Accounts:</strong> upsert por External ID en vez de insertar siempre.</div></li>
+      <li><span class="n">4</span><div><strong>Validar picklists</strong> contra <code>describe()</code> antes de enviar, comparando con la taxonomía vigente.</div></li>
+      <li><span class="n">5</span><div><strong>Errores parciales y reintentos:</strong> backoff en 5xx/límites de API, idempotencia por <code>run_id</code>.</div></li>
+      <li><span class="n">6</span><div><strong>Sandbox antes que producción</strong>, con los mismos campos custom.</div></li>
+    </ol>
+    <p><strong>Qué NO cambia:</strong> ingesta, pipeline, LLM, confidence, revisión, modelos y audit trail. Solo se
+      toca <code>salesforce_adapter.py</code> y se agrega un cliente nuevo que envía el payload ya generado.</p>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <span class="eyebrow">Stack</span>
+    <h2>Tecnología</h2>
+    <div class="chips">
+      <span class="chip">Python 3.12</span>
+      <span class="chip">Streamlit</span>
+      <span class="chip">Pydantic v2</span>
+      <span class="chip">SQLAlchemy + SQLite</span>
+      <span class="chip">PyMuPDF</span>
+      <span class="chip">python-docx</span>
+      <span class="chip">Gemini · Claude · OpenAI · DeepSeek</span>
+      <span class="chip">pytest</span>
+    </div>
+    <p style="margin-top:1.2rem">Sin FastAPI, sin Alembic, sin patrón repository, sin caché, sin colas, sin
+      autenticación: el MVP se mantiene deliberadamente pequeño y demostrable.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Prototipo funcional — no reemplaza Salesforce ni se conecta a producción en esta fase.
+      Código completo, README, tests y datos de ejemplo en
+      <a href="https://github.com/jmtoral/grant-tracker-gfw" target="_blank" rel="noopener">github.com/jmtoral/grant-tracker-gfw</a>.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "neutral",
+    themeVariables: { primaryColor: "#f6eef7", primaryBorderColor: "#411342", primaryTextColor: "#1a1418",
+                       lineColor: "#6b2a6e", fontFamily: "Inter, system-ui, sans-serif" } });
+</script>
+</body>
+</html>
