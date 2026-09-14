@@ -207,7 +207,18 @@ def show_run(run_id: int):
     if run.status == "llm_failed":
         st.warning("The LLM output could not be used: every field needs manual review.")
 
-    st.html("<style>.st-key-doc_panel{position:sticky;top:1rem;align-self:flex-start}</style>")
+    # Streamlit's row doesn't stretch a short column to the row's full height by default,
+    # so a sticky child has no room to move. Force the stretch down the wrapper chain, then
+    # let the sticky element itself opt back out with align-self so it stays content-sized.
+    st.html("<style>"
+            'div[data-testid="stHorizontalBlock"]:has(.st-key-doc_panel){align-items:stretch}'
+            'div[data-testid="stColumn"]:has(.st-key-doc_panel),'
+            'div[data-testid="stVerticalBlock"]:has(.st-key-doc_panel),'
+            'div[data-testid="stLayoutWrapper"]:has(.st-key-doc_panel)'
+            "{height:100%}"
+            ".st-key-doc_panel{position:sticky;top:1rem;align-self:flex-start;"
+            "flex-grow:0;flex-basis:auto}"
+            "</style>")
     left, right = st.columns([1, 1.2], gap="large")
     with left, st.container(key="doc_panel"):
         st.html(f"<h3 style='margin:0'>{html.escape(doc.filename)}</h3>")  # filename is untrusted
